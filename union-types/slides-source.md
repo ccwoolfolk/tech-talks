@@ -16,7 +16,8 @@ Simple tools for simple(r) code
 ## TypeScript basics in 60 seconds
 
 ```typescript
-const isAnExample: boolean = true; // Explicit primitive annotation
+// Explicit primitive annotation
+const isAnExample: boolean = true;
 
 // Object interface
 interface Student {
@@ -32,7 +33,7 @@ function logStudentName (student: Student) {
 
 ---
 
-## TypeScript basics in 60 seconds (continued)
+## Basics (continued)
 
 TypeScript uses a "structural" type system.
 
@@ -156,7 +157,8 @@ function isDefinedNumber (n: MaybeNumber): n is number {
 const maybeNumber: MaybeNumber = 1
 
 if (isDefinedNumber(maybeNumber)) {
-  // type of maybeNumber is narrowed to `number` within this block
+  // type of maybeNumber is narrowed to `number`
+  // within this block
   console.log('I am a number:', maybeNumber)
 }
 ```
@@ -168,14 +170,11 @@ if (isDefinedNumber(maybeNumber)) {
 Revisiting our problem...
 
 ```typescript
-// Same type guard
+// Same type guard and array
 type MaybeNumber = number | undefined
-
 function isDefinedNumber (n: MaybeNumber): n is number {
   return n !== undefined
 }
-
-// Same problem
 const maybeValues: (number | undefined)[] = [
   123, 456, undefined, 789
 ]
@@ -190,9 +189,11 @@ maybeValues
   .filter(isDefinedNumber)
   .map(fancyAlgorithm) // No error...Hooray!
 ```
+
 ---
 
 # Problem 2: Concepts and Labs living together (mass hysteria!)
+
 ---
 
 ## Problem 2: Concepts & Labs
@@ -253,10 +254,15 @@ const getSidebarLinks = (lesson: Lesson) => {
 };
 ```
 
+---
+
+## Problem 2: Concepts & Labs
+
 This approach works, but:
 1. We now have embedded business logic about the order of concepts => labs in multiple places
-  a. similarly, we have embedded the [0, 1] labs per lesson assumption
-2. We have to remember to handle both whenever we use lesson content
+2. Similarly, we have embedded the [0, 1] labs per lesson assumption
+3. We have to remember to handle both whenever we use lesson content
+
 ---
 
 ## Problem 2: Concepts & Labs
@@ -282,11 +288,11 @@ const getPathToNext = (currentKey: string, lesson: Lesson) => {
 };
 ```
 
-- This is easier to reason about
-- But now we need a way to differentiate between Concepts and Labs
+- But now we need a way to differentiate Concepts/Labs
 - So we're back to narrowing a union type
 
 ---
+
 ## Problem 2: Concepts & Labs
 
 Perceptive listeners will recognize that this example is really about _creating_ a union type rather than narrowing it!
@@ -301,14 +307,12 @@ We _could_ use type guards again.
 
 ```typescript
 interface Concept {
-  key: string;
-  title: string;
+  // ...
   atoms: object[];
 }
 
 interface Lab {
-  key: string;
-  title: string;
+  // ...
   workspaceKey: string;
 }
 
@@ -317,6 +321,11 @@ const isConcept = (content: Concept | Lab): content is Concept => {
   // `!(return 'workspaceKey' in content)` ?
 };
 ```
+
+---
+
+## Problem 2: Concepts & Labs
+
 - There isn't an obvious "right" way to differentiate the two
 - We could pick arbitrary properties, but now we need to keep the type guard synced with some arbitrary collection of properties
 - Hold these thoughts; there's a better solution coming
@@ -325,16 +334,14 @@ const isConcept = (content: Concept | Lab): content is Concept => {
 
 # Problem 3: A Course by any other name
 
-> What's in a name? That which we call a course
-> By any other name would preserve type safety;
-- Shakespeare, probably
+> What's in a name?
 
 ---
 
 ## Problem 3: Courses
 
 - The Classroom supports both paid and free courses
-- As you might imagine, the data structure underlying both is similar or identical
+- The data structures underlying both are similar or identical
 - We have type definitions for both - largely as a documentation tool
 
 ```typescript
@@ -354,15 +361,15 @@ export interface FreeCourse {
 
 ## Problem 3: Courses
 
-```typescript
-const freeCourseSideEffect = (fc: FreeCourse) => {
-  console.log(`I am doing something with ${fc.title}`);
-};
+![](https://i.kym-cdn.com/entries/icons/original/000/023/397/C-658VsXoAo3ovC.jpg)
 
-const paidCourseSideEffect = (pc: PaidCourse) => {
-  console.log(`I am doing something with ${pc.title}`);
-  console.log(`I can even use this: ${pc.paidCourseOnlyProperty}`);
-};
+---
+
+## Problem 3: Courses
+
+```typescript
+const freeCourseSideEffect = (fc: FreeCourse) => { /* ... */ };
+const paidCourseSideEffect = (pc: PaidCourse) => { /* ... */ };
 
 // We generate two course objects with accurate type annotations
 const paidCourse: PaidCourse = {
@@ -380,20 +387,28 @@ freeCourseSideEffect(paidCourse);
 paidCourseSideEffect(freeCourse);
 ```
 
+---
+
+## Problem 3: Courses
+
 - This may be surprising if you are familiar with other type systems.
 - TS uses a "structural" type system, not a "nominal" system
+
 ---
 
 ## Problem 3: Courses
 - So this is worse than the previous problems
 - Not only can we not use or narrow a union, the type safety here is merely an illusion
+
 ---
 
 ## Problem 3: Courses
 Solution 1: keep them separate (manually) and be conscientious
 
 Valid, but this resulted in some undesirable verbosity for us.
+
 ---
+
 ## Problem 3: Courses
 Solution 2: Differentiate the types
 
@@ -403,124 +418,122 @@ interface Branded<UniqueBrand> {
   _brand: UniqueBrand;
 }
 
-interface BrandedFreeCourse extends Branded<'FreeCourse'>, FreeCourse {}
-interface BrandedPaidCourse extends Branded<'PaidCourse'>, PaidCourse {}
+interface NewFreeCourse extends Branded<'FreeCourse'>, FreeCourse {}
+interface NewPaidCourse extends Branded<'PaidCourse'>, PaidCourse {}
 
-const brandedFreeCourse = {
+const newFreeCourse = {
   _brand: 'FreeCourse' as const,
   ...freeCourse,
 }
 
-const brandedPaidCourse = {
+const newPaidCourse = {
   _brand: 'PaidCourse' as const,
   ...paidCourse,
 }
 
-const brandedFreeCourseSideEffect = (fc: BrandedFreeCourse) => {
-  console.log(fc.title);
-};
-
-const brandedPaidCourseSideEffect = (pc: BrandedPaidCourse) => {
-  console.log(pc.title);
-};
+const freeCourseSideEffect = (fc: NewFreeCourse) => {}
+const paidCourseSideEffect = (pc: NewPaidCourse) => {}
 
 // Yay, we have type errors...
-brandedFreeCourseSideEffect(brandedPaidCourse);
-brandedPaidCourseSideEffect(brandedFreeCourse);
+brandedFreeCourseSideEffect(newPaidCourse);
+brandedPaidCourseSideEffect(newFreeCourse);
 
 // And no type errors here
-brandedPaidCourseSideEffect(brandedPaidCourse);
+brandedPaidCourseSideEffect(newPaidCourse);
 
 ```
 
 ---
+
 ## Problem 3: Courses
 
 We can now use a discriminated union and don't really even need custom type guards.
 
 ```typescript
-const courses: (BrandedFreeCourse | BrandedPaidCourse)[] = []
+const courses: (NewFreeCourse | NewPaidCourse)[] = []
 
 courses.forEach(course => {
   if (course._brand === 'FreeCourse') {
-    // type: BrandedFreeCourse
+    // type: NewFreeCourse
   } else {
-    // type: BrandedPaidCourse
+    // type: NewPaidCourse
   }
 })
 ```
 
 ---
+
 ## Problem 3: Courses
 
 - Note that we have made a run-time change here!
 - This is helpful in our case because we want to be able to narrow the union.
 - If it isn't helpful in your case, you can work solely through the type system to achieve type safety without run-time modifications.
 - None of these techniques are difficult -- just be sure to match the tool to your use case.
+
 ---
-## Problem 3: Courses
+
+## Branding
 
 If you want to work solely within the type system...
 
 ### This one weird trick compilers don't want you to know...
 
 ```typescript
-enum FreeCourseBrand {}
-enum PaidCourseBrand {}
+enum FreeCourseBrand { _ = "" }
+enum PaidCourseBrand { _ = "" }
 
-interface UberBrandedFreeCourse extends Branded<FreeCourseBrand>, FreeCourse {}
-interface UberBrandedPaidCourse extends Branded<PaidCourseBrand>, PaidCourse {}
+interface BrandedFreeCourse extends Branded<FreeCourseBrand> { key: string }
+interface BrandedPaidCourse extends Branded<PaidCourseBrand> { key: string }
 
-const uberBrandedFreeCourse = {
-  _brand: FreeCourseBrand,
-  ...freeCourse,
-}
+const brandedFreeCourse = { key: 'abc' } as BrandedFreeCourse
+const brandedPaidCourse = { key: 'xyz' } as BrandedPaidCourse
 
-const uberBrandedPaidCourse = {
-  _brand: PaidCourseBrand,
-  ...paidCourse,
-}
+const freeCourseSideEffect = (fc: BrandedFreeCourse) => {};
+const paidCourseSideEffect = (pc: BrandedPaidCourse) => {};
 
-const uberBrandedFreeCourseSideEffect = (fc: EnumBrandedFreeCourse) => {
-  console.log(`I am doing something with ${fc.title}`);
-};
-
-const uberBrandedFreeCourseSideEffect = (fc: EnumBrandedFreeCourse) => {
-  console.log(`I am doing something with ${fc.title}`);
-};
+freeCourseSideEffect(brandedPaidCourse) // Error!
+paidCourseSideEffect(brandedPaidCourse) // No error!
 ```
 
----
-## More branding!
+## Branding
 
-TODO !!!
+- `enum`s offer a degree of nominal typing.
+- As long as the names differ, the types are considered different.
+- This approach requires asserting the type
+
+---
+
+## More branding!
 
 Don't even need to use interfaces/objects...
 
 ```typescript
-enum LessonIdBrand {}
+enum LessonIdBrand { _ = "" }
 type LessonId = LessonIdBrand & string;
 
-enum NanodegreeIdBrand {}
+enum NanodegreeIdBrand { _ = ""}
 type NanodegreeId = NanodegreeIdBrand & string;
 
 const lessonId: LessonId = 'a-lesson' as LessonId;
 const nanodegreeId: NanodegreeId = 'a-nanodegree' as NanodegreeId;
-
-const getLesson = (id: LessonId) => {
-  console.log(`I am retrieving lesson "${id}"`)
-}
-
-getLesson(lessonId) // Good
-getLesson(nanodegreeId) // Ummmmmmm?
-// TODO: Add `_ = ""` to the brand enums
 ```
 
 ---
+
 ## Recap
 
+- Union types are helpful, but inevitably we want to narrow them.
+- Discriminated unions and type guards are a good first step.
 - Be clear about your run-time vs compile-time needs
   - Only compile-time checks? Enum brands are a great solution.
-  - Run-time checks? Adding a string const to the object itself has been a good solution for us.
+  - Run-time checks? Adding a string const to the object might be best.
 
 ---
+
+## Resources
+
+[419-comment TS repo thread on nominal typing](https://github.com/Microsoft/TypeScript/issues/202)
+
+[TypeScript Deep Dive: Nominal Typing](https://basarat.gitbook.io/typescript/main-1/nominaltyping)
+
+[Nominal typing techniques in TypeScript](https://michalzalecki.com/nominal-typing-in-typescript/#approach-2-brands)
