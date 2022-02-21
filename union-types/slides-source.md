@@ -26,7 +26,8 @@ interface Student {
   name: string;
 }
 
-function logStudentName (student: Student) {
+// Function annotation
+function logStudentName(student: Student): void {
   console.log(student.name);
 }
 ```
@@ -39,26 +40,49 @@ TypeScript uses a "structural" type system.
 
 ```typescript
 interface Student {
-  id: number;
   name: string;
 }
 
 interface Nanodegree {
-  id: number;
   name: string;
-  version: string;
   key: string;
 }
 
-function logStudentName (student: Student) {
+function logStudentName(student: Student): void {
   console.log(student.name);
 }
 
-const student: Student = { id: 1, name: 'Casey' }
-const nd: Nanodegree = { id: 1, name: 'TS Basics', version: '1.0.0', key: 'nd12345' }
+const student: Student = { name: "Casey" };
+const nd: Nanodegree = { name: "TS Basics", key: "nd12345" };
 
-logStudentName(student) // OK
-logStudentName(nd) // Also OK
+logStudentName(student); // OK
+logStudentName(nd); // Also OK
+```
+
+---
+
+## Narrowing 101
+
+> [T]he process of refining types to more specific types than declared is called narrowing.
+
+[TS Docs: Narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html)
+
+---
+
+## Narrowing 101
+
+```typescript
+function logAString(s: string): void {
+  console.log(s);
+}
+
+const item: unknown = "abc";
+
+logAString(item); // Error here
+
+if (typeof item === "string") {
+  logAString(item); // No error here
+}
 ```
 
 ---
@@ -68,7 +92,7 @@ logStudentName(nd) // Also OK
 ```typescript
 type Thing = number | string | boolean;
 
-const things: Thing[] = [1, 'a', true, NaN]
+const things: Thing[] = [1, "a", true, NaN];
 ```
 
 Also useful for optional properties...
@@ -90,20 +114,18 @@ interface Student {
 
 ## Problem 1: Filter
 
-If you work with TS for long, you inevitably run into this problem:
-
 ```typescript
 // Usually as a result of `map`ping an optional property...
 const maybeValues: (number | undefined)[] = [
   123, 456, undefined, 789
-]
+];
 
-function fancyAlgorithm (x: number) {
-  return x + 1
+function fancyAlgorithm(x: number): number {
+  return x + 1;
 }
 
 // Expected error: `number` vs `number | undefined`
-maybeValues.map(fancyAlgorithm)
+maybeValues.map(fancyAlgorithm);
 ```
 
 ---
@@ -115,15 +137,15 @@ A logical solution would be to try `filter`ing...
 ```typescript
 const maybeValues: (number | undefined)[] = [
   123, 456, undefined, 789
-]
+];
 
-function fancyAlgorithm (x: number) {
-  return x + 1
+function fancyAlgorithm(x: number): number {
+  return x + 1;
 }
 
 maybeValues
-  .filter(maybeValue => maybeValue !== undefined)
-  .map(fancyAlgorithm) // No luck :(
+  .filter((maybeValue) => maybeValue !== undefined)
+  .map(fancyAlgorithm); // No luck :(
 ```
 
 ---
@@ -134,7 +156,7 @@ Looking at the basic definition of `filter` shows why:
 
 ```typescript
   filter(
-    predicate: (value: T, index: number, array: T[]) => unknown,
+    predicate: (value: T, i: number, array: T[]) => unknown,
     thisArg?: any,
   ): T[];
 ```
@@ -145,21 +167,21 @@ We provide `T[]` and get back `T[]` (not unreasonably).
 
 ## Problem 1: Filter
 
-Enter type guards...
+Enter custom type guards...
 
 ```typescript
-type MaybeNumber = number | undefined
+type MaybeNumber = number | undefined;
 
-function isDefinedNumber (n: MaybeNumber): n is number {
-  return n !== undefined
+function isDefinedNumber(n: MaybeNumber): n is number {
+  return n !== undefined;
 }
 
-const maybeNumber: MaybeNumber = 1
+const maybeNumber: MaybeNumber = 1;
 
 if (isDefinedNumber(maybeNumber)) {
   // type of maybeNumber is narrowed to `number`
   // within this block
-  console.log('I am a number:', maybeNumber)
+  console.log("I am a number:", maybeNumber);
 }
 ```
 
@@ -171,23 +193,22 @@ Revisiting our problem...
 
 ```typescript
 // Same type guard and array
-type MaybeNumber = number | undefined
-function isDefinedNumber (n: MaybeNumber): n is number {
-  return n !== undefined
+type MaybeNumber = number | undefined;
+function isDefinedNumber(n: MaybeNumber): n is number {
+  return n !== undefined;
 }
 const maybeValues: (number | undefined)[] = [
   123, 456, undefined, 789
-]
+];
 
-function fancyAlgorithm (x: number) {
-  return x + 1
+function fancyAlgorithm(x: number): number {
+  return x + 1;
 }
 
-// But now it works
 maybeValues
   // .filter(maybeValue => maybeValue !== undefined)
   .filter(isDefinedNumber)
-  .map(fancyAlgorithm) // No error...Hooray!
+  .map(fancyAlgorithm); // No error...Hooray!
 ```
 
 ---
@@ -200,11 +221,10 @@ maybeValues
 
 [A Classroom Example](https://learn.udacity.com/nanodegrees/nd000/parts/dc13bd39-6568-4ab3-9dd2-56da21ebcd7e/lessons/ceac532e-8e5b-4dce-8e52-ee1f76593c8d/concepts/7bf75254-02ed-4e92-a841-b5749b6a4f36)
 
-(for student `6e03fa06-101c-11ec-9081-bf993a04dadc`)
+(`6e03fa06-101c-11ec-9081-bf993a04dadc`)
 
-- Labs and Concepts require a different UI but are often treated as being "lesson content" in a general sense
-- They represent different UX workflows
-- Sometimes we want to treat them as generic "lesson content"
+- Labs and Concepts require different UX flows...
+- But sometimes we want to treat them as generic "lesson content"
 
 So we sometimes want two different types...but sometimes want a single union type
 
@@ -231,21 +251,23 @@ interface Lesson {
   concepts: Concept[];
   lab?: Lab;
 }
+```
 
-const getPathToNextFromConcept = (currentKey: string, lesson: Lesson) => {
-  // currentConcept is in lesson.concepts and is not the last item?
+---
+
+## Problem 2: Concepts & Labs
+
+```typescript
+const getPathToNextFromConcept = (
+  currentKey: string, lesson: Lesson
+) => {
+  // concept is in lesson.concepts and not last item?
   //   return the next concept
   // is the last item?
   //   is there a lab?
   //     if so, return the lab path
   //     if not, send to the next lesson
 };
-
-const getPathToNextFromLab = (currentKey: string, lesson: Lesson) => {
-  // go to the next lesson
-};
-
-// Note that there is also getPathToPrev[x] for these!!!
 
 const getSidebarLinks = (lesson: Lesson) => {
   // Combine:
@@ -259,6 +281,7 @@ const getSidebarLinks = (lesson: Lesson) => {
 ## Problem 2: Concepts & Labs
 
 This approach works, but:
+
 1. We now have embedded business logic about the order of concepts => labs in multiple places
 2. Similarly, we have embedded the [0, 1] labs per lesson assumption
 3. We have to remember to handle both whenever we use lesson content
@@ -280,16 +303,9 @@ const getContent = (lesson: Lesson): (Concept | Lab)[] => {
 const getPath = (content: Concept | Lab): string => {
   // etc etc etc
 };
-
-const getPathToNext = (currentKey: string, lesson: Lesson) => {
-  const content = getContent(lesson);
-  const currentIndex = content.find(({ key }) => key === currentKey);
-  // If content[currentIndex + 1] exists, call getPath on it
-};
 ```
 
-- But now we need a way to differentiate Concepts/Labs
-- So we're back to narrowing a union type
+But now we need a way to narrow Concepts/Labs
 
 ---
 
@@ -316,9 +332,9 @@ interface Lab {
   workspaceKey: string;
 }
 
-const isConcept = (content: Concept | Lab): content is Concept => {
-  // `return 'atoms' in content` ?
-  // `!(return 'workspaceKey' in content)` ?
+const isConcept = (c: Concept | Lab): c is Concept => {
+  // `return 'atoms' in c` ?
+  // `!(return 'workspaceKey' in c)` ?
 };
 ```
 
@@ -368,18 +384,18 @@ export interface FreeCourse {
 ## Problem 3: Courses
 
 ```typescript
-const freeCourseSideEffect = (fc: FreeCourse) => { /* ... */ };
-const paidCourseSideEffect = (pc: PaidCourse) => { /* ... */ };
+const freeCourseSideEffect = (fc: FreeCourse) => {};
+const paidCourseSideEffect = (pc: PaidCourse) => {};
 
-// We generate two course objects with accurate type annotations
+// We generate two course objects with accurate annotations
 const paidCourse: PaidCourse = {
-  key: 'paid-1',
-  title: 'A paid course',
+  key: "paid-1",
+  title: "A paid course",
 };
 
 const freeCourse: FreeCourse = {
-  key: 'free-1',
-  title: 'A free course',
+  key: "free-1",
+  title: "A free course",
 };
 
 // No type errors :(
@@ -397,12 +413,14 @@ paidCourseSideEffect(freeCourse);
 ---
 
 ## Problem 3: Courses
+
 - So this is worse than the previous problems
 - Not only can we not use or narrow a union, the type safety here is merely an illusion
 
 ---
 
 ## Problem 3: Courses
+
 Solution 1: keep them separate (manually) and be conscientious
 
 Valid, but this resulted in some undesirable verbosity for us.
@@ -410,38 +428,75 @@ Valid, but this resulted in some undesirable verbosity for us.
 ---
 
 ## Problem 3: Courses
+
 Solution 2: Differentiate the types
 
 ```typescript
+interface NewFreeCourse extends FreeCourse {
+  _brand: "FreeCourse";
+}
 
+interface NewPaidCourse extends PaidCourse {
+  _brand: "PaidCourse";
+}
+
+const newFreeCourse = {
+  _brand: "FreeCourse" as const,
+  ...freeCourse,
+};
+
+const newPaidCourse = {
+  _brand: "PaidCourse" as const,
+  ...paidCourse,
+};
+```
+
+---
+
+## Problem 3: Courses
+
+...and our problem is solved.
+
+```typescript
+const freeCourseSideEffect = (fc: NewFreeCourse) => {};
+const paidCourseSideEffect = (pc: NewPaidCourse) => {};
+
+// Yay, we have type errors...
+freeCourseSideEffect(newPaidCourse);
+paidCourseSideEffect(newFreeCourse);
+
+// And no type errors here
+paidCourseSideEffect(newPaidCourse);
+```
+
+---
+
+## Problem 3: Courses
+
+We could even encapsulate this type branding into a generic type.
+
+```typescript
 interface Branded<UniqueBrand> {
   _brand: UniqueBrand;
 }
 
-interface NewFreeCourse extends Branded<'FreeCourse'>, FreeCourse {}
-interface NewPaidCourse extends Branded<'PaidCourse'>, PaidCourse {}
-
-const newFreeCourse = {
-  _brand: 'FreeCourse' as const,
-  ...freeCourse,
-}
-
-const newPaidCourse = {
-  _brand: 'PaidCourse' as const,
-  ...paidCourse,
-}
-
-const freeCourseSideEffect = (fc: NewFreeCourse) => {}
-const paidCourseSideEffect = (pc: NewPaidCourse) => {}
-
-// Yay, we have type errors...
-brandedFreeCourseSideEffect(newPaidCourse);
-brandedPaidCourseSideEffect(newFreeCourse);
-
-// And no type errors here
-brandedPaidCourseSideEffect(newPaidCourse);
-
+interface NewFreeCourse extends
+  Branded<"FreeCourse">, FreeCourse {}
+interface NewPaidCourse extends
+  Branded<"PaidCourse">, PaidCourse {}
 ```
+
+---
+
+## Problem 3: Courses
+
+Naming things is hard.
+
+- This example uses `_brand`
+- The [TS Docs](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions) use `kind`
+- [TS Deep Dive](https://basarat.gitbook.io/typescript/main-1/nominaltyping#using-interfaces) uses `_[name]Brand` for a similar effect (as does the [TS repo](https://github.com/Microsoft/TypeScript/blob/7b48a182c05ea4dea81bab73ecbbe9e013a79e99/src/compiler/types.ts#L693-L698))
+
+Ideally, the brand key wouldn't collide with potential values in the underlying type. Pick something reasonable, and be consistent.
 
 ---
 
@@ -450,15 +505,15 @@ brandedPaidCourseSideEffect(newPaidCourse);
 We can now use a discriminated union and don't really even need custom type guards.
 
 ```typescript
-const courses: (NewFreeCourse | NewPaidCourse)[] = []
+const courses: (NewFreeCourse | NewPaidCourse)[] = [];
 
-courses.forEach(course => {
-  if (course._brand === 'FreeCourse') {
+courses.forEach((course) => {
+  if (course._brand === "FreeCourse") {
     // type: NewFreeCourse
   } else {
     // type: NewPaidCourse
   }
-})
+});
 ```
 
 ---
@@ -476,23 +531,29 @@ courses.forEach(course => {
 
 If you want to work solely within the type system...
 
-### This one weird trick compilers don't want you to know...
-
 ```typescript
-enum FreeCourseBrand { _ = "" }
-enum PaidCourseBrand { _ = "" }
+enum FreeCourseBrand {
+  _ = "",
+}
+enum PaidCourseBrand {
+  _ = "",
+}
 
-interface BrandedFreeCourse extends Branded<FreeCourseBrand> { key: string }
-interface BrandedPaidCourse extends Branded<PaidCourseBrand> { key: string }
+interface BrandedFreeCourse extends Branded<FreeCourseBrand> {
+  key: string;
+}
+interface BrandedPaidCourse extends Branded<PaidCourseBrand> {
+  key: string;
+}
 
-const brandedFreeCourse = { key: 'abc' } as BrandedFreeCourse
-const brandedPaidCourse = { key: 'xyz' } as BrandedPaidCourse
+const brandedFreeCourse = { key: "abc" } as BrandedFreeCourse;
+const brandedPaidCourse = { key: "xyz" } as BrandedPaidCourse;
 
 const freeCourseSideEffect = (fc: BrandedFreeCourse) => {};
 const paidCourseSideEffect = (pc: BrandedPaidCourse) => {};
 
-freeCourseSideEffect(brandedPaidCourse) // Error!
-paidCourseSideEffect(brandedPaidCourse) // No error!
+freeCourseSideEffect(brandedPaidCourse); // Error!
+paidCourseSideEffect(brandedPaidCourse); // No error!
 ```
 
 ## Branding
@@ -508,14 +569,18 @@ paidCourseSideEffect(brandedPaidCourse) // No error!
 Don't even need to use interfaces/objects...
 
 ```typescript
-enum LessonIdBrand { _ = "" }
+enum LessonIdBrand {
+  _ = "",
+}
 type LessonId = LessonIdBrand & string;
 
-enum NanodegreeIdBrand { _ = ""}
+enum NanodegreeIdBrand {
+  _ = "",
+}
 type NanodegreeId = NanodegreeIdBrand & string;
 
-const lessonId: LessonId = 'a-lesson' as LessonId;
-const nanodegreeId: NanodegreeId = 'a-nanodegree' as NanodegreeId;
+const lessonId: LessonId = "a-lesson" as LessonId;
+const nanodegreeId: NanodegreeId = "a-nd" as NanodegreeId;
 ```
 
 ---
@@ -532,8 +597,27 @@ const nanodegreeId: NanodegreeId = 'a-nanodegree' as NanodegreeId;
 
 ## Resources
 
-[419-comment TS repo thread on nominal typing](https://github.com/Microsoft/TypeScript/issues/202)
+419-comment TS repo thread on nominal typing
+_https://github.com/Microsoft/TypeScript/issues/202_
 
-[TypeScript Deep Dive: Nominal Typing](https://basarat.gitbook.io/typescript/main-1/nominaltyping)
+TypeScript Deep Dive: Nominal Typing
+_https://basarat.gitbook.io/typescript/main-1/nominaltyping_
 
-[Nominal typing techniques in TypeScript](https://michalzalecki.com/nominal-typing-in-typescript/#approach-2-brands)
+Nominal typing techniques in TypeScript
+_https://michalzalecki.com/nominal-typing-in-typescript/#approach-2-brands_
+
+---
+
+## More Resources (TS Docs)
+
+Narrowing
+_https://www.typescriptlang.org/docs/handbook/2/narrowing.html_
+
+Narrowing: control flow analysis
+_https://www.typescriptlang.org/docs/handbook/2/narrowing.html#control-flow-analysis_
+
+Narrowing: using type predicates
+_https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates_
+
+Narrowing: discriminated unions
+_https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes-func.html#discriminated-unions_
