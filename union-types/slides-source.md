@@ -15,7 +15,7 @@ Simple tools for simple(r) code
 
 ## TypeScript basics in 60 seconds
 
-```typescript []
+```typescript [1-2|3-9|10-14]
 // Explicit primitive annotation
 const isAnExample: boolean = true;
 
@@ -38,7 +38,7 @@ function logStudentName(student: Student): void {
 
 TypeScript uses a "structural" type system.
 
-```typescript []
+```typescript [1-8|1-12|1-15|]
 interface Student {
   name: string;
 }
@@ -71,7 +71,7 @@ logStudentName(nd); // Also OK
 
 ## Narrowing 101
 
-```typescript []
+```typescript [1-3|1-7|]
 function logAString(s: string): void {
   console.log(s);
 }
@@ -95,6 +95,10 @@ type Thing = number | string | boolean;
 const things: Thing[] = [1, "a", true, NaN];
 ```
 
+---
+
+## TypeScript unions
+
 Also useful for optional properties...
 
 ```typescript []
@@ -114,7 +118,7 @@ interface Student {
 
 ## Problem 1: Filter
 
-```typescript []
+```typescript [1-4|6-8|]
 // Usually as a result of `map`ping an optional property
 const maybeValues: (number | undefined)[] = [
   123, 456, undefined, 789
@@ -134,7 +138,7 @@ maybeValues.map(fancyAlgorithm);
 
 A logical solution would be to try `filter`ing...
 
-```typescript []
+```typescript [1-7|9-11]
 const maybeValues: (number | undefined)[] = [
   123, 456, undefined, 789
 ];
@@ -154,7 +158,7 @@ maybeValues
 
 Looking at the basic definition of `filter` shows why:
 
-```typescript []
+```typescript [1|3-5|]
   filter(
     predicate: (val: T, i: number, array: T[]) => unknown,
     thisArg?: any,
@@ -169,7 +173,7 @@ We provide `T[]` and get back `T[]` (not unreasonably).
 
 Enter custom type guards...
 
-```typescript []
+```typescript [1|1-5|1-7|]
 type MaybeNumber = number | undefined;
 
 function isDefinedNumber(n: MaybeNumber): n is number {
@@ -191,7 +195,7 @@ if (isDefinedNumber(maybeNumber)) {
 
 Revisiting our problem...
 
-```typescript []
+```typescript [1-8|10-12|14-17]
 // Same type guard and array
 type MaybeNumber = number | undefined;
 function isDefinedNumber(n: MaybeNumber): n is number {
@@ -234,7 +238,7 @@ So we sometimes want two different types...but sometimes want a single union typ
 
 As a first approach, we can just store labs and concepts separately...
 
-```typescript []
+```typescript [1-11|13-16]
 interface Concept {
   key: string;
   title: string;
@@ -292,7 +296,7 @@ This approach works, but:
 
 Ideally, we would have something like:
 
-```typescript []
+```typescript [1-8|10-12]
 type Content = Concept | Lab;
 
 const getContent = (lesson: Lesson): Content[] => {
@@ -385,7 +389,7 @@ export interface FreeCourse {
 
 ## Problem 3: Courses
 
-```typescript []
+```typescript [1-2|4-13|15-17]
 const freeCourseSideEffect = (fc: FreeCourse) => {};
 const paidCourseSideEffect = (pc: PaidCourse) => {};
 
@@ -433,7 +437,7 @@ Valid, but this resulted in some undesirable verbosity for us.
 
 Solution 2: Differentiate the types
 
-```typescript []
+```typescript [1-7|9-17]
 interface NewFreeCourse extends FreeCourse {
   _brand: "FreeCourse";
 }
@@ -533,7 +537,7 @@ courses.forEach((course) => {
 
 If you want to work solely within the type system...
 
-```typescript []
+```typescript [1-2|1-9|11-12|14-15|17-18]
 enum FreeBrand { _ = "" }
 enum PaidBrand { _ = "" }
 
@@ -566,15 +570,11 @@ paidCourseSideEffect(paidCourse); // No error!
 
 Don't even need to use interfaces/objects...
 
-```typescript []
-enum LessonIdBrand {
-  _ = "",
-}
+```typescript [1-2|4-5|7-8]
+enum LessonIdBrand { _ = "" }
 type LessonId = LessonIdBrand & string;
 
-enum NanodegreeIdBrand {
-  _ = "",
-}
+enum NanodegreeIdBrand { _ = "" }
 type NanodegreeId = NanodegreeIdBrand & string;
 
 const lessonId: LessonId = "a-lesson" as LessonId;
