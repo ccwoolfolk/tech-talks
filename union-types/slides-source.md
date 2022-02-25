@@ -53,7 +53,7 @@ function logStudentName(student: Student): void {
 }
 
 const student: Student = { name: "Casey" };
-const nd: Nanodegree = { name: "TS Basics", key: "nd12345" };
+const nd: Nanodegree = { name: "TS Basics", key: "nd1" };
 
 logStudentName(student); // OK
 logStudentName(nd); // Also OK
@@ -115,7 +115,7 @@ interface Student {
 ## Problem 1: Filter
 
 ```typescript []
-// Usually as a result of `map`ping an optional property...
+// Usually as a result of `map`ping an optional property
 const maybeValues: (number | undefined)[] = [
   123, 456, undefined, 789
 ];
@@ -156,7 +156,7 @@ Looking at the basic definition of `filter` shows why:
 
 ```typescript []
   filter(
-    predicate: (value: T, i: number, array: T[]) => unknown,
+    predicate: (val: T, i: number, array: T[]) => unknown,
     thisArg?: any,
   ): T[];
 ```
@@ -387,7 +387,7 @@ export interface FreeCourse {
 const freeCourseSideEffect = (fc: FreeCourse) => {};
 const paidCourseSideEffect = (pc: PaidCourse) => {};
 
-// We generate two course objects with accurate annotations
+// We generate two courses with accurate annotations
 const paidCourse: PaidCourse = {
   key: "paid-1",
   title: "A paid course",
@@ -532,28 +532,24 @@ courses.forEach((course) => {
 If you want to work solely within the type system...
 
 ```typescript []
-enum FreeCourseBrand {
-  _ = "",
-}
-enum PaidCourseBrand {
-  _ = "",
-}
+enum FreeBrand { _ = "" }
+enum PaidBrand { _ = "" }
 
-interface BrandedFreeCourse extends Branded<FreeCourseBrand> {
+interface FreeCourse extends Branded<FreeBrand> {
   key: string;
 }
-interface BrandedPaidCourse extends Branded<PaidCourseBrand> {
+interface PaidCourse extends Branded<PaidBrand> {
   key: string;
 }
 
-const brandedFreeCourse = { key: "abc" } as BrandedFreeCourse;
-const brandedPaidCourse = { key: "xyz" } as BrandedPaidCourse;
+const freeCourse = { key: "abc" } as FreeCourse;
+const paidCourse = { key: "xyz" } as PaidCourse;
 
-const freeCourseSideEffect = (fc: BrandedFreeCourse) => {};
-const paidCourseSideEffect = (pc: BrandedPaidCourse) => {};
+const freeCourseSideEffect = (fc: FreeCourse) => {};
+const paidCourseSideEffect = (pc: PaidCourse) => {};
 
-freeCourseSideEffect(brandedPaidCourse); // Error!
-paidCourseSideEffect(brandedPaidCourse); // No error!
+freeCourseSideEffect(paidCourse); // Error!
+paidCourseSideEffect(paidCourse); // No error!
 ```
 
 ## Branding
