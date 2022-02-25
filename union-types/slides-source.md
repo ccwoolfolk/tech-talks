@@ -293,14 +293,16 @@ This approach works, but:
 Ideally, we would have something like:
 
 ```typescript []
-const getContent = (lesson: Lesson): (Concept | Lab)[] => {
+type Content = Concept | Lab;
+
+const getContent = (lesson: Lesson): Content[] => {
   const { concepts } = lesson;
   const labs = lesson.lab ? [lesson.lab] : [];
 
   return [...concepts, ...labs];
 };
 
-const getPath = (content: Concept | Lab): string => {
+const getPath = (content: Content): string => {
   // etc etc etc
 };
 ```
