@@ -15,7 +15,7 @@ Simple tools for simple(r) code
 
 ## TypeScript basics in 60 seconds
 
-```typescript
+```typescript []
 // Explicit primitive annotation
 const isAnExample: boolean = true;
 
@@ -38,7 +38,7 @@ function logStudentName(student: Student): void {
 
 TypeScript uses a "structural" type system.
 
-```typescript
+```typescript []
 interface Student {
   name: string;
 }
@@ -71,7 +71,7 @@ logStudentName(nd); // Also OK
 
 ## Narrowing 101
 
-```typescript
+```typescript []
 function logAString(s: string): void {
   console.log(s);
 }
@@ -89,7 +89,7 @@ if (typeof item === "string") {
 
 ## TypeScript unions
 
-```typescript
+```typescript []
 type Thing = number | string | boolean;
 
 const things: Thing[] = [1, "a", true, NaN];
@@ -97,7 +97,7 @@ const things: Thing[] = [1, "a", true, NaN];
 
 Also useful for optional properties...
 
-```typescript
+```typescript []
 interface Student {
   id: number;
   favoriteColor?: string; // string | undefined
@@ -114,7 +114,7 @@ interface Student {
 
 ## Problem 1: Filter
 
-```typescript
+```typescript []
 // Usually as a result of `map`ping an optional property...
 const maybeValues: (number | undefined)[] = [
   123, 456, undefined, 789
@@ -134,7 +134,7 @@ maybeValues.map(fancyAlgorithm);
 
 A logical solution would be to try `filter`ing...
 
-```typescript
+```typescript []
 const maybeValues: (number | undefined)[] = [
   123, 456, undefined, 789
 ];
@@ -154,7 +154,7 @@ maybeValues
 
 Looking at the basic definition of `filter` shows why:
 
-```typescript
+```typescript []
   filter(
     predicate: (value: T, i: number, array: T[]) => unknown,
     thisArg?: any,
@@ -169,7 +169,7 @@ We provide `T[]` and get back `T[]` (not unreasonably).
 
 Enter custom type guards...
 
-```typescript
+```typescript []
 type MaybeNumber = number | undefined;
 
 function isDefinedNumber(n: MaybeNumber): n is number {
@@ -191,7 +191,7 @@ if (isDefinedNumber(maybeNumber)) {
 
 Revisiting our problem...
 
-```typescript
+```typescript []
 // Same type guard and array
 type MaybeNumber = number | undefined;
 function isDefinedNumber(n: MaybeNumber): n is number {
@@ -234,7 +234,7 @@ So we sometimes want two different types...but sometimes want a single union typ
 
 As a first approach, we can just store labs and concepts separately...
 
-```typescript
+```typescript []
 interface Concept {
   key: string;
   title: string;
@@ -257,7 +257,7 @@ interface Lesson {
 
 ## Problem 2: Concepts & Labs
 
-```typescript
+```typescript []
 const getPathToNextFromConcept = (
   currentKey: string, lesson: Lesson
 ) => {
@@ -292,7 +292,7 @@ This approach works, but:
 
 Ideally, we would have something like:
 
-```typescript
+```typescript []
 const getContent = (lesson: Lesson): (Concept | Lab)[] => {
   const { concepts } = lesson;
   const labs = lesson.lab ? [lesson.lab] : [];
@@ -321,7 +321,7 @@ But if we accept that a union could be a useful readability improvement, then we
 
 We _could_ use type guards again.
 
-```typescript
+```typescript []
 interface Concept {
   // ...
   atoms: object[];
@@ -360,7 +360,7 @@ const isConcept = (c: Concept | Lab): c is Concept => {
 - The data structures underlying both are similar or identical
 - We have type definitions for both - largely as a documentation tool
 
-```typescript
+```typescript []
 export interface PaidCourse {
   readonly key: string;
   readonly title: string;
@@ -383,7 +383,7 @@ export interface FreeCourse {
 
 ## Problem 3: Courses
 
-```typescript
+```typescript []
 const freeCourseSideEffect = (fc: FreeCourse) => {};
 const paidCourseSideEffect = (pc: PaidCourse) => {};
 
@@ -431,7 +431,7 @@ Valid, but this resulted in some undesirable verbosity for us.
 
 Solution 2: Differentiate the types
 
-```typescript
+```typescript []
 interface NewFreeCourse extends FreeCourse {
   _brand: "FreeCourse";
 }
@@ -457,7 +457,7 @@ const newPaidCourse = {
 
 ...and our problem is solved.
 
-```typescript
+```typescript []
 const freeCourseSideEffect = (fc: NewFreeCourse) => {};
 const paidCourseSideEffect = (pc: NewPaidCourse) => {};
 
@@ -475,7 +475,7 @@ paidCourseSideEffect(newPaidCourse);
 
 We could even encapsulate this type branding into a generic type.
 
-```typescript
+```typescript []
 interface Branded<UniqueBrand> {
   _brand: UniqueBrand;
 }
@@ -504,7 +504,7 @@ Ideally, the brand key wouldn't collide with potential values in the underlying 
 
 We can now use a discriminated union and don't really even need custom type guards.
 
-```typescript
+```typescript []
 const courses: (NewFreeCourse | NewPaidCourse)[] = [];
 
 courses.forEach((course) => {
@@ -531,7 +531,7 @@ courses.forEach((course) => {
 
 If you want to work solely within the type system...
 
-```typescript
+```typescript []
 enum FreeCourseBrand {
   _ = "",
 }
@@ -568,7 +568,7 @@ paidCourseSideEffect(brandedPaidCourse); // No error!
 
 Don't even need to use interfaces/objects...
 
-```typescript
+```typescript []
 enum LessonIdBrand {
   _ = "",
 }
