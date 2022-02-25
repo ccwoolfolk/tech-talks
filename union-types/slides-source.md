@@ -176,7 +176,7 @@ function isDefinedNumber(n: MaybeNumber): n is number {
   return n !== undefined;
 }
 
-const maybeNumber: MaybeNumber = 1;
+const maybeNumber: MaybeNumber = [1, undefined, 3, 4][0];
 
 if (isDefinedNumber(maybeNumber)) {
   // type of maybeNumber is narrowed to `number`
