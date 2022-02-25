@@ -597,27 +597,20 @@ const nanodegreeId: NanodegreeId = "a-nd" as NanodegreeId;
 
 ## Resources
 
-419-comment TS repo thread on nominal typing
-_https://github.com/Microsoft/TypeScript/issues/202_
+[419-comment TS repo thread on nominal typing](https://github.com/Microsoft/TypeScript/issues/202)
 
-TypeScript Deep Dive: Nominal Typing
-_https://basarat.gitbook.io/typescript/main-1/nominaltyping_
+[TypeScript Deep Dive: Nominal Typing](https://basarat.gitbook.io/typescript/main-1/nominaltyping)
 
-Nominal typing techniques in TypeScript
-_https://michalzalecki.com/nominal-typing-in-typescript/#approach-2-brands_
+[Nominal typing techniques in TypeScript](https://michalzalecki.com/nominal-typing-in-typescript/#approach-2-brands)
 
 ---
 
 ## More Resources (TS Docs)
 
-Narrowing
-_https://www.typescriptlang.org/docs/handbook/2/narrowing.html_
+[Narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html)
 
-Narrowing: control flow analysis
-_https://www.typescriptlang.org/docs/handbook/2/narrowing.html#control-flow-analysis_
+[Narrowing: control flow analysis](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#control-flow-analysis)
 
-Narrowing: using type predicates
-_https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates_
+[Narrowing: using type predicates](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates)
 
-Narrowing: discriminated unions
-_https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes-func.html#discriminated-unions_
+[Narrowing: discriminated unions](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes-func.html#discriminated-unions)
